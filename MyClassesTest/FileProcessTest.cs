@@ -12,21 +12,40 @@ namespace MyClassesTest {
 
         public TestContext TestContext { get; set; }
 
+        #region Test Initialize e Cleanup
+
+        [TestInitialize]
+        public void TestInitialize() {
+            if(TestContext.TestName == "FileNameDoesExists") {
+                SetGoodFileName();
+                if (!string.IsNullOrEmpty(_GoodFileName)) {
+                    TestContext.WriteLine($"Creating File: {_GoodFileName}");
+                    File.AppendAllText(_GoodFileName, "Some Text");
+                }
+            }
+        }
+
+        [TestCleanup]
+        public void TestCleanup() {
+            if (TestContext.TestName == "FileNameDoesExists") {
+                if (!string.IsNullOrEmpty(_GoodFileName)) {
+                    TestContext.WriteLine($"Deleting File: {_GoodFileName}");
+                    File.Delete(_GoodFileName);
+                }
+            }
+        }
+
+        #endregion
+
         [TestMethod]
+        [Description("Check to see if a file does exist.")]
+        [Owner("LuizF")]
         public void FileNameDoesExists() {
             FileProcess fp = new FileProcess();
             bool fromCall;
-
-            SetGoodFileName();
-            
-            TestContext.WriteLine($"Creating File: {_GoodFileName}");
-            File.AppendAllText(_GoodFileName, "Some Text");
             
             TestContext.WriteLine($"Testing File: {_GoodFileName}");
             fromCall = fp.FileExists(_GoodFileName);
-
-            TestContext.WriteLine($"Deleting File: {_GoodFileName}");
-            File.Delete(_GoodFileName);
 
             Assert.IsTrue(fromCall);
         }
@@ -39,6 +58,14 @@ namespace MyClassesTest {
         }
 
         [TestMethod]
+        [Timeout(3100)]
+        public void SimulateTimeout() {
+            System.Threading.Thread.Sleep(3000);
+        }
+
+        [TestMethod]
+        [Description("Check to see if a file does NOT exist.")]
+        [Owner("LuizF")]
         public void FileNameDoesNotExists() {
             FileProcess fp = new FileProcess();
             bool fromCall;
@@ -50,6 +77,7 @@ namespace MyClassesTest {
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
+        [Owner("LuizF")]
         public void FileNameNullOrEmpty_ThrowsArgumentNullException() {
             // TODO;
             FileProcess fp = new FileProcess();
@@ -58,6 +86,7 @@ namespace MyClassesTest {
         }
 
         [TestMethod]
+        [Owner("LuizF")]
         public void FileNameNullOrEmpty_ThrowsArgumentNullException_UsingTryCatch() {
             // TODO;
             FileProcess fp = new FileProcess();
